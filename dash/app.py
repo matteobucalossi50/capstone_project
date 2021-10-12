@@ -10,33 +10,68 @@
 import dash
 from dash import dcc 
 from dash import html
-import pandas as pd
-import plotly.express as px
+# import pandas as pd
+# import plotly.express as px
 from dash.dependencies import Input, Output
 
 app = dash.Dash(__name__)
 
 app.layout = html.Div([
-    html.H6("Change the value in the text box to see callbacks in action!"),
-    html.Div([
-        "Input: ",
-        dcc.Input(id='my-input', value='initial value', type='text')
-    ]),
-    html.Br(),
-    html.Div(id='my-output'),
+    html.Label('Dropdown'),
+    dcc.Dropdown(
+        options=[
+            {'label': 'New York City', 'value': 'NYC'},
+            {'label': u'Montréal', 'value': 'MTL'},
+            {'label': 'San Francisco', 'value': 'SF'}
+        ],
+        value='MTL'
+    ),
 
-])
+    html.Label('Multi-Select Dropdown'),
+    dcc.Dropdown(
+        options=[
+            {'label': 'New York City', 'value': 'NYC'},
+            {'label': u'Montréal', 'value': 'MTL'},
+            {'label': 'San Francisco', 'value': 'SF'}
+        ],
+        value=['MTL', 'SF'],
+        multi=True
+    ),
 
+    html.Label('Radio Items'),
+    dcc.RadioItems(
+        options=[
+            {'label': 'New York City', 'value': 'NYC'},
+            {'label': u'Montréal', 'value': 'MTL'},
+            {'label': 'San Francisco', 'value': 'SF'}
+        ],
+        value='MTL'
+    ),
 
-@app.callback(
-    Output(component_id='my-output', component_property='children'),
-    Input(component_id='my-input', component_property='value')
-)
-def update_output_div(input_value):
-    return 'Output: {}'.format(input_value)
+    html.Label('Checkboxes'),
+    dcc.Checklist(
+        options=[
+            {'label': 'New York City', 'value': 'NYC'},
+            {'label': u'Montréal', 'value': 'MTL'},
+            {'label': 'San Francisco', 'value': 'SF'}
+        ],
+        value=['MTL', 'SF']
+    ),
 
+    html.Label('Text Input'),
+    dcc.Input(value='MTL', type='text'),
+
+    html.Label('Slider'),
+    dcc.Slider(
+        min=0,
+        max=9,
+        marks={i: 'Label {}'.format(i) if i == 1 else str(i) for i in range(1, 6)},
+        value=5,
+    ),
+], style={'columnCount': 2})
 
 if __name__ == '__main__':
     app.run_server(debug=True)
 
+app = dash.Dash(__name__)
 # %%

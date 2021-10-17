@@ -30,6 +30,9 @@ df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/data/20211011_0930
 
 documenu = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/data/documenu.csv')
 
+documenu = documenu[documenu['menu_items.description'].notna()]
+menu_items = documenu['menu_items.description'].values.tolist()
+
 
 ###nlp
 texts = df.tweet_text.values.tolist()
@@ -38,7 +41,7 @@ texts = [re.sub(r'https?://\S+', '', rev) for rev in texts]
 # tokenized_sents = [word_tokenize(i) for i in texts]
 # flat_tokens = [item for sublist in tokenized_sents for item in sublist]
 
-out_toks = [[word for word in simple_preprocess(str(doc), deacc=True, min_len=3) if word not in stopwords] for doc in texts]
+out_toks = [[word for word in simple_preprocess(str(doc), deacc=True, min_len=3) if word not in stopwords] for doc in menu_items]
 flat_tokens = [item for sublist in out_toks for item in sublist]
 
 fdist = FreqDist(flat_tokens)
@@ -55,7 +58,7 @@ flat_bigr = [item for sublist in bigr for item in sublist]
 
 fdist_bigr = nltk.FreqDist(flat_bigr)
 
-plt.gcf().subplots_adjust(bottom=0.55) # to avoid x-ticks cut-off
+plt.gcf().subplots_adjust(bottom=0.45) # to avoid x-ticks cut-off
 fdist_bigr.plot(30, title='Bigrams Frequency Distribution')
 
 

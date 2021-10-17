@@ -9,9 +9,10 @@
 import requests
 import pandas as pd
 import os
+from os.path import join
 import sys
 sys.path.insert(1, 'C:\\Users\\raide\\OneDrive\\Documents\\GitHub\\capstone_project\\constants')
-from constants import get_mp_api_key
+from constants import get_mp_documenu_api_key
 from ast import literal_eval
 
 #%% 
@@ -28,11 +29,11 @@ def restaurants_by_zip(zipcode, size, full_menu=False):
     
     Returns:
     --------
-    df_final (DataFrame): A pandas DataFrame of the results.
+    df (DataFrame): A pandas DataFrame of the results.
     """
 
     # Access API
-    API_KEY = get_mp_api_key()
+    API_KEY = get_mp_documenu_api_key()
     # if full_menu:
     #     url = f'https://api.documenu.com/v2/restaurants/zip_code/{zipcode}?fullmenu=true&size={size}&key={API_KEY}'
     # else:
@@ -81,6 +82,11 @@ def restaurants_by_zip(zipcode, size, full_menu=False):
         df = df.drop(columns=['menus.menu_sections.menu_items','menus.menu_sections.menu_items.pricing.price','menus.menu_sections.menu_items.pricing.currency','menus.menu_sections.menu_items.pricing.priceString','menus.menu_sections.menu_items.pricing'])
     else:
         df.drop(columns=['cuisines', 'menus'], inplace=True)
+        
+    # Write to directory
+    data_path = os.path.join(os.getcwd(), 'data')
+    file_name = os.ath.join(data_path, f'{zipcode}_documenu_results.csv')
+    df.to_csv(file_name)
 
     return df
 # %%

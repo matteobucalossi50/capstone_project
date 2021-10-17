@@ -1,15 +1,22 @@
 # %%
+# Import libraries
 import time
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
 from datetime import datetime
-import os
+from os.path import isfile, join
+import sys
+sys.path.insert(1, 'C:\\Users\\raide\\OneDrive\\Documents\\GitHub\\capstone_project\\constants')
+from constants import chrome_path
+
+
+#%%
+# Setup Selenium
 
 # Chrome driver
-CHROME_PATH = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
-CHROMEDRIVER_PATH = r'C:\Users\raide\OneDrive\Documents\GitHub\capstone_project\scraping\chromedriver_win32\chromedriver'
+CHROME_PATH = chrome_path()
+CHROMEDRIVER_PATH = os.path.join(os.getcwd(), 'chromedriver_win32', 'chromedriver.exe')
 WINDOW_SIZE = '1920,1080'
 
 # Chrome options
@@ -18,15 +25,20 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
 chrome_options.binary_location = CHROME_PATH
 
-# Begin Selenium service
-# service = Service(r'C:\Users\raide\OneDrive\Documents\GitHub\capstone_project\scraping\chromedriver_win32\chromedriver')
-# service.start()
-
 # Initialize Driver
 driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
 
 #%%
 def enchanted_learning_food(driver=driver):
+    """
+    Parameters:
+    -----------
+        driver (selenium.webdriver.chrome.webdriver.WebDriver) = Selenium webdriver.
+        
+    Returns:
+    --------
+        raw_word_list (list): List of words from https://www.enchantedlearning.com/wordlist/food.shtml. 
+    """
     
     # Navigate to page
     url = 'https://www.enchantedlearning.com/wordlist/food.shtml'
@@ -44,11 +56,11 @@ def enchanted_learning_food(driver=driver):
 
 def get_hashtag_stats(driver=driver):
     """
-    Visits https://ritetag.com/hashtag-comparison/ to get statistics about the supplied hashtags.
+    Visits https://ritetag.com/hashtag-comparison/ to get statistics about the supplied hashtags and writes the resulting DataFrame to the directory.
     
     Parameters:
     -----------
-    hashtag_list (list of strings): The hashtags of interest, without the '#'.
+    driver (selenium.webdriver.chrome.webdriver.WebDriver) = Selenium webdriver.
     
     Return:
     -------
@@ -89,16 +101,16 @@ def get_hashtag_stats(driver=driver):
     df = pd.DataFrame(data)
     df = df.replace(',', '', regex=True)
     df[['unique_tweets_per_hour', 'retweets_per_hour', 'views_per_hour']] = df[['unique_tweets_per_hour', 'retweets_per_hour', 'views_per_hour']].apply(pd.to_numeric)
+
+    # Write to directory
     to_csv_timestamp = datetime.today().strftime('%Y%m%d_%H%M%S_')
-    path = r'C:\Users\raide\OneDrive\Documents\GitHub\capstone_project\data\hashtag_stats'
-    filename = path + '\\' + to_csv_timestamp + 'hashtag_stats.csv'
-    df.to_csv(filename, index=False)
+    data_path = os.path.join(os.getcwd(), 'data')
+    file_path = os.path.join(data_path, to_csv_timestamp + '_hashtag_stats.csv')
+    df.to_csv(file_path, index=False)
     
     return df
 
 # %%
-# raw_word_list, hashtags_from_word_list = enchanted_learning_food()
-# df = get_hashtag_stats(raw_word_list)
-# df
+os.getcwd()
 
 # %%

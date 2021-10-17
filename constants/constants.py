@@ -1,4 +1,4 @@
-def get_mp_api_key():
+def get_mp_documenu_api_key():
     # return 'c7f971117b34db96607a989c10f0d985'
     return '53b7426a41102cb6e217635a882c36d1'
     # return 'fb1be0d8f88649210207adab97853f34'
@@ -23,3 +23,8 @@ def get_michael_twitter_creds():
 # api key: HL3LtKtQsIbXTNXEzG0DdqOcg
 # api secret key: bLriKHY08atzvRDf0KFa3pYGEwABbEVEgpHSsWqGbYNIrI2tqy
 # bearer token: AAAAAAAAAAAAAAAAAAAAAFIDUwEAAAAAlYCursbswfBbzMY2QXFQ6Vz6oY4%3D59wgu9t5NxCx77Mo5rHIl22gMfsopW7onPB58wtXBgRXf1W49M
+
+def chrome_path():
+    import os
+    from os.path import join
+    return os.path.join('C:\Program Files\Google\Chrome\Application\chrome.exe')

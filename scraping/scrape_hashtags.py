@@ -13,26 +13,28 @@ from constants import chrome_path
 
 
 #%%
-# Setup Selenium
+def chrome_driver():
+    # Setup Selenium
 
-# Chrome driver
-CHROME_PATH = chrome_path()
-# CHROMEDRIVER_PATH = os.path.join(os.getcwd(), 'chromedriver_win32', 'chromedriver.exe')
-CHROMEDRIVER_PATH = r'C:\Users\raide\OneDrive\Documents\GitHub\capstone_project\scraping\chromedriver_win32\chromedriver.exe'
-print(CHROMEDRIVER_PATH)
-WINDOW_SIZE = '1920,1080'
+    # Chrome driver
+    CHROME_PATH = chrome_path()
+    # CHROMEDRIVER_PATH = os.path.join(os.getcwd(), 'chromedriver_win32', 'chromedriver.exe')
+    CHROMEDRIVER_PATH = r'C:\Users\raide\OneDrive\Documents\GitHub\capstone_project\scraping\chromedriver_win32\chromedriver.exe'
+    WINDOW_SIZE = '1920,1080'
 
-# Chrome options
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
-chrome_options.binary_location = CHROME_PATH
+    # Chrome options
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
+    chrome_options.binary_location = CHROME_PATH
 
-# Initialize Driver
-driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, options=chrome_options)
+    # Initialize Driver
+    driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, options=chrome_options)
+    
+    return driver
 
 #%%
-def enchanted_learning_food(driver=driver):
+def enchanted_learning_food():
     """
     Parameters:
     -----------
@@ -43,10 +45,19 @@ def enchanted_learning_food(driver=driver):
         raw_word_list (list): List of words from https://www.enchantedlearning.com/wordlist/food.shtml. 
     """
     
-    # Navigate to page
+    # Create drivert
+    driver = chrome_driver()
     url = 'https://www.enchantedlearning.com/wordlist/food.shtml'
-    driver.get(url)
-    time.sleep(2)
+    time.sleep(5)
+    try:
+        driver.get(url)
+    except:
+        time.sleep(5)
+        try:
+            driver.get(url)
+        except Exception as e:
+            print("Error: ", e)
+            raise
 
     # Create list of words from page
     word_list_from_browser = driver.find_elements_by_class_name('wordlist-item')
@@ -57,7 +68,7 @@ def enchanted_learning_food(driver=driver):
 
 #%%
 
-def get_hashtag_stats(driver=driver):
+def get_hashtag_stats(hashtags):
     """
     Visits https://ritetag.com/hashtag-comparison/ to get statistics about the supplied hashtags and writes the resulting DataFrame to the directory.
     
@@ -71,13 +82,25 @@ def get_hashtag_stats(driver=driver):
     """
     
     hashtag_list = enchanted_learning_food()
+    hashtag_list = hashtag_list + hashtags
 
     # Create URL
     hashtag_url_list = [s + '%7C' if i != len(hashtag_list) - 1 else s for i, s in enumerate(hashtag_list)]
     hashtag_url_str = "".join(hashtag_url_list)
+    
+    # Create driver
+    driver = chrome_driver()
     url = 'https://ritetag.com/hashtag-comparison/' + hashtag_url_str
-    driver.get(url)
-    time.sleep(2)
+    time.sleep(5)
+    try:
+        driver.get(url)
+    except:
+        time.sleep(5)
+        try:
+            driver.get(url)
+        except Exception as e:
+            print("Error: ", e)
+            raise
 
     # list of hashtags page info
     hashtag_list_from_browser = driver.find_elements_by_class_name('tagstyleBig')
@@ -108,8 +131,10 @@ def get_hashtag_stats(driver=driver):
     # Write to directory
     to_csv_timestamp = datetime.today().strftime('%Y%m%d_%H%M%S_')
     data_path = os.path.join(os.getcwd(), 'data')
-    file_path = os.path.join(data_path, to_csv_timestamp + '_hashtag_stats.csv')
-    # df.to_csv(file_path, index=False)
+    data_folders = [f for f in os.listdir(data_path) if f.endswith('_run')]
+    run_path = os.path.join(data_path, data_folders[-1])
+    file_path = os.path.join(run_path, to_csv_timestamp + 'hashtag_stats.csv')
+    df.to_csv(file_path, index=False)
     
     return df
 # %%

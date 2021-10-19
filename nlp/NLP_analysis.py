@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import re
-# import spacy
+import spacy
 # nlp = spacy.load('en_core_web_sm')
 
 import nltk
@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 
 from textblob import TextBlob
 
-df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/data/20211011_093034_all_food_tweets_clean.csv')
+df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/stream/enchanted_food_list/clean/clean_streaming_data.csv')
 
 documenu = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/data/documenu.csv')
 
@@ -35,13 +35,13 @@ menu_items = documenu['menu_items.description'].values.tolist()
 
 
 ###nlp
-texts = df.tweet_text.values.tolist()
+texts = df.text.values.tolist()
 texts = [re.sub(r'https?://\S+', '', rev) for rev in texts]
 
 # tokenized_sents = [word_tokenize(i) for i in texts]
 # flat_tokens = [item for sublist in tokenized_sents for item in sublist]
 
-out_toks = [[word for word in simple_preprocess(str(doc), deacc=True, min_len=3) if word not in stopwords] for doc in menu_items]
+out_toks = [[word for word in simple_preprocess(str(doc), deacc=True, min_len=3) if word not in stopwords] for doc in texts]
 flat_tokens = [item for sublist in out_toks for item in sublist]
 
 fdist = FreqDist(flat_tokens)

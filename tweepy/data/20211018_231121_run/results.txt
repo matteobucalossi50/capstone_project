@@ -1,0 +1,3 @@
+Number of tweets streamed: 89912
+Number of tweets missed: 4
+Percent of tweets streamed that were missed: 0.004448794376723908

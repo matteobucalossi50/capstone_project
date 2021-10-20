@@ -64,7 +64,12 @@ def enchanted_learning_food():
     raw_word_list = [s.text for s in word_list_from_browser]
     # hashtags_from_word_list = ['#' + s.replace(' ', '') for s in raw_word_list]
 
-    return raw_word_list
+    f = open(os.path.join(os.getcwd(), 'data', 'enchanted_food_words.txt'),"w+")
+    for word in raw_word_list:
+        f.write(word + '\n')
+    f.close()
+
+    return
 
 #%%
 
@@ -81,7 +86,9 @@ def get_hashtag_stats(hashtags):
     df (DataFrame): A pandas DataFrame of the result.
     """
     
-    hashtag_list = enchanted_learning_food()
+    f = open(os.path.join(os.getcwd(), 'data', 'enchanted_food_words.txt'),"r")
+    hashtag_list = [word.replace('\n', '') for word in f.readlines()]  
+    f.close()
     hashtag_list = hashtag_list + hashtags
 
     # Create URL

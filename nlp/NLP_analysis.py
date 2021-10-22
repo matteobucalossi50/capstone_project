@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import re
-import spacy
+# import spacy
 # nlp = spacy.load('en_core_web_sm')
 
 import nltk
@@ -26,12 +26,12 @@ import matplotlib.pyplot as plt
 
 from textblob import TextBlob
 
-df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/stream/enchanted_food_list/clean/clean_streaming_data.csv')
+df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/20211019_170634_clean_streaming_data.csv')
 
-documenu = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/data/documenu.csv')
-
-documenu = documenu[documenu['menu_items.description'].notna()]
-menu_items = documenu['menu_items.description'].values.tolist()
+# documenu = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/data/documenu.csv')
+#
+# documenu = documenu[documenu['menu_items.description'].notna()]
+# menu_items = documenu['menu_items.description'].values.tolist()
 
 
 ###nlp

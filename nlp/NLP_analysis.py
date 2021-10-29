@@ -28,7 +28,7 @@ from textblob import TextBlob
 
 df_stream = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/20211021_201736_clean_streaming_hashtags_data.csv')
 
-df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/_archive/scrape_results/20211010_100050_exposed_food_tweets_clean.csv')
+df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/20211026_195518_clean_scraping_custom_hashtags_data.csv')
 
 # documenu = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/data/documenu.csv')
 #

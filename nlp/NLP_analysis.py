@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import re
-# import spacy
-# nlp = spacy.load('en_core_web_sm')
+import spacy
+nlp = spacy.load('en_core_web_sm')
 
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -26,7 +26,9 @@ import matplotlib.pyplot as plt
 
 from textblob import TextBlob
 
-df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/20211019_170634_clean_streaming_data.csv')
+df_stream = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/20211021_201736_clean_streaming_hashtags_data.csv')
+
+df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/_archive/scrape_results/20211010_100050_exposed_food_tweets_clean.csv')
 
 # documenu = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/data/documenu.csv')
 #
@@ -35,7 +37,7 @@ df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/202110
 
 
 ###nlp
-texts = df.text.values.tolist()
+texts = df.tweet_text.values.tolist()
 texts = [re.sub(r'https?://\S+', '', rev) for rev in texts]
 
 # tokenized_sents = [word_tokenize(i) for i in texts]
@@ -49,7 +51,7 @@ top_100 = fdist.most_common(100)
 
 print(top_100)
 
-plt.gcf().subplots_adjust(bottom=0.35) # to avoid x-ticks cut-off
+plt.gcf().subplots_adjust(bottom=0.55) # to avoid x-ticks cut-off
 fdist.plot(30, title='Tokens Frequency Distribution')
 
 

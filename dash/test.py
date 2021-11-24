@@ -94,9 +94,7 @@ content = html.Div(
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = html.Div([sidebar, content])
 
-app.run_server(debug=True, use_reloader=True)  # Turn off reloader if inside Jupyter
-
-df = pd.read_csv('/Users/test/Deskto    p/github_mp/capstone_project/documenu/data/documenu/documenu.csv', index_col=0)
+df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/documenu/data/documenu/documenu.csv', index_col=0)
 
 @app.callback(
     Output(component_id='map', component_property='figure'),
@@ -148,3 +146,6 @@ def update_map(n_clicks, zipcode_value):
             ),
         )
     }
+    
+#%%
+app.run_server(debug=True, use_reloader=True)  # Turn off reloader if inside Jupyter

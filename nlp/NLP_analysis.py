@@ -63,7 +63,6 @@ def process_words(texts, stop_words=stopwords):
 
 #######
 ### nlp
-
 texts = df.tweet_text.values.tolist()
 texts = [re.sub(r'https?://\S+', '', rev) for rev in texts]
 
@@ -246,6 +245,7 @@ model = gensim.models.Word2Vec(sentences=common_tokens)
 keys = ['coffee', 'chicken', 'meat', 'dessert']
 
 # functionalize(from df to output to plot)
+
 embedding_clusters = []
 word_clusters = []
 for word in keys:
@@ -458,4 +458,3 @@ filtered_df['zipcode'] = zipcodes
 
 ## save df
 filtered_df.to_csv('20211026_195518_clean_scraping_custom_hashtags_data_zipcodes.csv')
-

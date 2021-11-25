@@ -71,7 +71,81 @@ sidebar = html.Div(
     style=SIDEBAR_STYLE,
 )
 
-content_first_row = dbc.Row(
+content_first_row = dbc.Row([
+    dbc.Col(
+        dbc.Card(
+            [
+
+                dbc.CardBody(
+                    [
+                        html.H4(id='card_title_1', children=['Card Title 1'], className='card-title',
+                                style=CARD_TEXT_STYLE),
+                        html.P(id='card_text_1', children=['Sample text.'], style=CARD_TEXT_STYLE),
+                    ]
+                )
+            ]
+        ),
+        md=3
+    ),
+    dbc.Col(
+        dbc.Card(
+            [
+
+                dbc.CardBody(
+                    [
+                        html.H4('Card Title 2', className='card-title', style=CARD_TEXT_STYLE),
+                        html.P('Sample text.', style=CARD_TEXT_STYLE),
+                    ]
+                ),
+            ]
+
+        ),
+        md=3
+    ),
+    dbc.Col(
+        dbc.Card(
+            [
+                dbc.CardBody(
+                    [
+                        html.H4('Card Title 3', className='card-title', style=CARD_TEXT_STYLE),
+                        html.P('Sample text.', style=CARD_TEXT_STYLE),
+                    ]
+                ),
+            ]
+
+        ),
+        md=3
+    ),
+    dbc.Col(
+        dbc.Card(
+            [
+                dbc.CardBody(
+                    [
+                        html.H4('Card Title 4', className='card-title', style=CARD_TEXT_STYLE),
+                        html.P('Sample text.', style=CARD_TEXT_STYLE),
+                    ]
+                ),
+            ]
+        ),
+        md=3
+    )
+])
+
+content_second_row = dbc.Row(
+    [
+        dbc.Col(
+            dcc.Graph(id='graph_1'), md=4
+        ),
+        dbc.Col(
+            dcc.Graph(id='graph_2'), md=4
+        ),
+        dbc.Col(
+            dcc.Graph(id='graph_3'), md=4
+        )
+    ],
+)
+
+content_third_row = dbc.Row(
     [
         dbc.Col(
             dcc.Graph(id='map', figure={}), md=12,
@@ -83,9 +157,9 @@ content = html.Div(
     [
         html.H2("What are we going to eat?", style=TEXT_STYLE),
         html.Hr(),
-        content_first_row
-        # content_second_row,
-        # content_third_row,
+        content_first_row,
+        content_second_row,
+        content_third_row
         # content_fourth_row
     ],
     style=CONTENT_STYLE
@@ -94,7 +168,7 @@ content = html.Div(
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = html.Div([sidebar, content])
 
-df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/documenu/data/documenu/documenu.csv', index_col=0)
+# df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/documenu/data/documenu/documenu.csv', index_col=0)
 
 @app.callback(
     Output(component_id='map', component_property='figure'),
@@ -103,16 +177,20 @@ df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/documenu/data/d
 )
 def update_map(n_clicks, zipcode_value):
     from documenu import restaurants_by_zip
-    if zipcode_value >= 0:
-        print(n_clicks)
-        print(zipcode_value)
-        print(type(zipcode_value))
-        # df = restaurants_by_zip(zipcode_value, 25, True)
+    
+    if zipcode_value is None:
+        print('button not clicked')
         
+    print(n_clicks)
+    print(zipcode_value)
+    print(type(zipcode_value))
+    
+    if type(zipcode_value) == int:
+        df = restaurants_by_zip(zipcode_value, 25, True)
         mapbox_access_token = open(".mapbox_token").read()
-        restaurants = df.restaurant_name.tolist()
-        lat = df['geo.lat'].tolist()
-        lon = df['geo.lon'].tolist()
+        restaurants = df.restaurant_name.unique().tolist()
+        lat = df['geo.lat'].unique().tolist()
+        lon = df['geo.lon'].unique().tolist()
 
         fig = [go.Scattermapbox(
             lat = lat,
@@ -128,7 +206,7 @@ def update_map(n_clicks, zipcode_value):
         
     return {
         'data': fig, 
-        'layout': go.layout(
+        'layout': go.Layout(
             uirevision='foo',
             clickmode='event+select',
             hovermode='closest',

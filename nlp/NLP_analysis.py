@@ -61,7 +61,8 @@ def process_words(texts, stop_words=stopwords):
     #               if word not in stop_words] for doc in texts_out]
     return texts_out, noun, adj, relevants
 
-###nlp
+#######
+### nlp
 texts = df.tweet_text.values.tolist()
 texts = [re.sub(r'https?://\S+', '', rev) for rev in texts]
 
@@ -242,6 +243,8 @@ model = gensim.models.Word2Vec(sentences=common_tokens)
 
 # arbitrary topic
 keys = ['coffee', 'chicken', 'meat', 'dessert']
+
+# functionalize(from df to output to plot)
 
 embedding_clusters = []
 word_clusters = []

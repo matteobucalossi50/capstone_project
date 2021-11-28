@@ -36,10 +36,6 @@ def chrome_driver():
 #%%
 def enchanted_learning_food():
     """
-    Parameters:
-    -----------
-        driver (selenium.webdriver.chrome.webdriver.WebDriver) = Selenium webdriver.
-        
     Returns:
     --------
         raw_word_list (list): List of words from https://www.enchantedlearning.com/wordlist/food.shtml. 
@@ -73,23 +69,27 @@ def enchanted_learning_food():
 
 #%%
 
-def get_hashtag_stats(hashtags):
+def get_hashtag_stats(hashtags=None, food_list=False):
     """
     Visits https://ritetag.com/hashtag-comparison/ to get statistics about the supplied hashtags and writes the resulting DataFrame to the directory.
     
     Parameters:
     -----------
-    driver (selenium.webdriver.chrome.webdriver.WebDriver) = Selenium webdriver.
+    hashtags (list) = Additional hashtags to retrieve stats on. Default is None.
     
     Return:
     -------
     df (DataFrame): A pandas DataFrame of the result.
     """
     
-    f = open(os.path.join(os.getcwd(), 'data', 'enchanted_food_words.txt'),"r")
-    hashtag_list = [word.replace('\n', '') for word in f.readlines()]  
-    f.close()
-    hashtag_list = hashtag_list + hashtags
+    if food_list:
+        f = open(os.path.join(os.getcwd(), 'data', 'enchanted_food_words.txt'),"r")
+        hashtag_list = [word.replace('\n', '') for word in f.readlines()]  
+        f.close()
+    if hashtags != None and food_list:
+        hashtag_list = hashtag_list + hashtags
+    else:
+        hashtag_list = hashtags
 
     # Create URL
     hashtag_url_list = [s + '%7C' if i != len(hashtag_list) - 1 else s for i, s in enumerate(hashtag_list)]

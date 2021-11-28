@@ -60,12 +60,18 @@ def restaurants_by_zip(zipcode, size, full_menu=False):
 
     # Build table
     df = pd.json_normalize(response)
-    cuisine_cols = [col for col in df.columns if 'cuisine' in col]
-    split_cuisines = pd.DataFrame(df.cuisines.tolist(), columns=[f'cuisine_{x}' for x in range(1, len(cuisine_cols))])
-    df = pd.concat([df, split_cuisines], axis=1)
+    try:
+        cuisine_cols = [col for col in df.columns if 'cuisine' in col]
+        split_cuisines = pd.DataFrame(df.cuisines.tolist(), columns=[f'cuisine_{x}' for x in range(1, len(cuisine_cols))])
+        df = pd.concat([df, split_cuisines], axis=1)
+    except:
+        pass
     
     if full_menu:
-        df.drop(columns=['cuisines'], inplace=True)
+        try:
+            df.drop(columns=['cuisines'], inplace=True)
+        except:
+            pass
         df.menus = df.menus.astype(str).apply(literal_eval)
         df = df.explode('menus').reset_index(drop=True)
         df = pd.json_normalize(df.to_dict(orient='records'))
@@ -96,4 +102,6 @@ def restaurants_by_zip(zipcode, size, full_menu=False):
 df = restaurants_by_zip(14625, 20, full_menu=False)
 
 #%%
-df
+documenu_df = restaurants_by_zip(34145, 25, True)
+documenu_df
+# %%

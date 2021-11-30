@@ -89,12 +89,11 @@ filtered_df = df.iloc[rows]
 filtered_df['zipcode'] = zipcodes
 
 ## save df
-filtered_df.to_csv('20211026_195518_clean_scraping_custom_hashtags_data_zipcodes.csv')
+# filtered_df.to_csv('20211026_195518_clean_scraping_custom_hashtags_data_zipcodes.csv')
 
 
 #######
 ### nlp
-
 texts = filtered_df.tweet_text.values.tolist()
 texts = [re.sub(r'https?://\S+', '', rev) for rev in texts]
 
@@ -332,6 +331,7 @@ model = gensim.models.Word2Vec(sentences=common_tokens)
 keys = ['coffee', 'chicken']
 
 # functionalize(from df to output to plot)
+
 embedding_clusters = []
 word_clusters = []
 for word in keys:

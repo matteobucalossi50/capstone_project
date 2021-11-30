@@ -30,3 +30,6 @@ for tweet in texts:
         embds.append(features)
 
 
+inputs = tokenizer(word, return_tensors="pt")
+outputs = model(**inputs)
+word_vect = outputs.pooler_output.detach().numpy()

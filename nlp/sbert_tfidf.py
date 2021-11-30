@@ -155,6 +155,6 @@ if __name__ == '__main__':
 
     filt_df = sbert_search(filtered_df, zip, query)
 
-    keywords = tfidf_keywords(filt_df)
+    keywords = tfidf_keywords(filt_df)  # get list of words for top part of dash (and use to search documenu if want to)
 
-    grams_plots(filt_df)
+    grams_plots(filt_df)  # get 2 plotly bar charts for mid-part of dash

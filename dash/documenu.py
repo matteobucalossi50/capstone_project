@@ -6,6 +6,7 @@
 #%%
 
 # import libraries
+from posixpath import split
 from re import M
 import requests
 import pandas as pd
@@ -60,27 +61,52 @@ def restaurants_by_zip(zipcode, size, full_menu=False):
 
     # Build table
     df = pd.json_normalize(response)
-    split_cuisines = pd.DataFrame(df.cuisines.tolist(), columns=['cuisine_1', 'cuisine_2', 'cuisine_3', 'cuisine_4', 'cuisine_5', 'cuisine_6'])
-    df = pd.concat([df, split_cuisines], axis=1)
-    
+    try:
+        # print(df.columns)
+        # cuisine_cols = [col for col in df.columns if 'cuisine' in col]
+        # print(cuisine_cols)
+        # print(df.cuisines.tolist())
+        cuisines = df.cuisines.tolist()
+        columns_len = max(len(cuisine) for cuisine in cuisines)
+        split_cuisines = pd.DataFrame(cuisines, columns=[f'cuisine_{x+1}' for x in range(0, columns_len)])
+        df = pd.concat([df, split_cuisines], axis=1)
+    except:
+        pass
     if full_menu:
-        df.drop(columns=['cuisines'], inplace=True)
-        df.menus = df.menus.astype(str).apply(literal_eval)
-        df = df.explode('menus').reset_index(drop=True)
+        try:
+            df.drop(columns=['cuisines'], inplace=True)
+        except:
+            pass
+        
+        try:
+            df.menus = df.menus.astype(str).apply(literal_eval)
+            df = df.explode('menus').reset_index(drop=True)
+            print(df.columns)
+            # df = df.rename(columns={'menus.menu_name': 'menu_name'})
+        except:
+            pass
+        try:
+            df = pd.json_normalize(df.to_dict(orient='records'))
+            df = df.explode('menus.menu_sections').reset_index(drop=True)
+        except:
+            pass
+        try:
+            df = pd.json_normalize(df.to_dict(orient='records'))
+            df = df.explode('menus.menu_sections.menu_items').reset_index(drop=True)
+        except:
+            pass
+        try:
+            df = pd.json_normalize(df.to_dict(orient='records'))
+            df = df.explode('menus.menu_sections.menu_items.pricing').reset_index(drop=True)
+        except:
+            pass
         df = pd.json_normalize(df.to_dict(orient='records'))
-        df = df.explode('menus.menu_sections').reset_index(drop=True)
-        df = pd.json_normalize(df.to_dict(orient='records'))
-        df = df.explode('menus.menu_sections.menu_items').reset_index(drop=True)
-        df = pd.json_normalize(df.to_dict(orient='records'))
-        df = df.explode('menus.menu_sections.menu_items.pricing').reset_index(drop=True)
-        df = pd.json_normalize(df.to_dict(orient='records'))
-        df = df.rename(columns={'menus.menu_name': 'menu_name',
-            'menus.menu_sections.section_name': 'section_name',
-            'menus.menu_sections.description': 'description',
-            'menus.menu_sections.menu_items.name': 'menu_items.name',
-            'menus.menu_sections.menu_items.description': 'menu_items.description',
-            'menus.menu_sections.menu_items.price': 'menu_items.price'})
-        df = df.drop(columns=['menus.menu_sections.menu_items','menus.menu_sections.menu_items.pricing.price','menus.menu_sections.menu_items.pricing.currency','menus.menu_sections.menu_items.pricing.priceString','menus.menu_sections.menu_items.pricing'])
+        df = df.rename(columns={'menus.menu_name': 'menu_name','menus.menu_sections.section_name': 'section_name',
+        'menus.menu_sections.description': 'description',
+        'menus.menu_sections.menu_items.name': 'menu_items.name',
+        'menus.menu_sections.menu_items.description': 'menu_items.description',
+        'menus.menu_sections.menu_items.price': 'menu_items.price'})
+        # df = df.drop(columns=['menus.menu_sections.menu_items','menus.menu_sections.menu_items.pricing.price','menus.menu_sections.menu_items.pricing.currency','menus.menu_sections.menu_items.pricing.priceString','menus.menu_sections.menu_items.pricing'])
     else:
         df.drop(columns=['cuisines', 'menus'], inplace=True)
         
@@ -90,3 +116,10 @@ def restaurants_by_zip(zipcode, size, full_menu=False):
     # df.to_csv(file_name)
 
     return df
+# %%
+df = restaurants_by_zip(14627, 20, full_menu=True)
+df.head()
+# %%
+df = restaurants_by_zip(20001, 20, full_menu=False)
+df.columns
+# %%

@@ -12,9 +12,10 @@ import pickle
 from pyzipcode import ZipCodeDatabase
 from embeddings_w2v import w2v_model, tsne_plot
 from documenu import restaurants_by_zip
+import random
 
         
-twitter_df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/nlp/20211026_195518_clean_scraping_custom_hashtags_data_zipcodes.csv', index_col=0)
+twitter_df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/nlp/20211026_195518_clean_scraping_custom_hashtags_data_zipcodes_list.csv', index_col=0)
 
 # the style arguments for the sidebar.
 SIDEBAR_STYLE = {
@@ -39,10 +40,16 @@ TEXT_STYLE = {
     'color': '#191970'
 }
 
-CARD_TEXT_STYLE = {
+CARD_TITLE_STYLE = {
     'textAlign': 'center',
     'color': '#0074D9'
 }
+
+CARD_TEXT_STYLE = {
+    'textAlign': 'center',
+    'color': 'black'
+}
+
 
 FOOTER_TEXT_STYLE = {
     'textAlign': 'center',
@@ -97,7 +104,7 @@ content_first_row = dbc.Row([
             [
                 dbc.CardBody(
                     [
-                    html.H4(id='card_title_1', children=["Find out what's trending!"], className='card-title', style=CARD_TEXT_STYLE),
+                    html.H4(id='card_title_1', children=["Find out what's trending!"], className='card-title', style=CARD_TITLE_STYLE),
                         html.P(id='card_text_1', children=[], style=CARD_TEXT_STYLE),
                     ]
                 ),
@@ -172,21 +179,20 @@ def process_data(n_clicks, zipcode_value, food_value):
         # Narrow twitter data to the provided zipcode
         
         # Create and run model
-        twitter_dfc = twitter_df[twitter_df['zipcode'] == zipcode_value]
+        # twitter_dfc = twitter_df[twitter_df['zipcode'] == zipcode_value]
+        zipcode_str = str(zipcode_value)
+        twitter_dfc = twitter_df[twitter_df['zipcode_list'].str.contains(zipcode_str, case=False, na=False)]
         print('twitter subset', len(twitter_dfc))
         tokens = pickle.load(open('tokens_pkl.p', 'rb'))
         print('success2')
         embedding_clusters, word_clusters = w2v_model(tokens, [food_value])
-        print(word_clusters)
-        print(embedding_clusters)
+        # print(word_clusters)
+        # print(embedding_clusters)
         print('success3')
         
         # Get menu information for the zipcode
-        documenu_df = restaurants_by_zip(zipcode_value, 25, True)
+        documenu_df = restaurants_by_zip(zipcode_value, 20, True)
         documenu_df = documenu_df.to_json(date_format='iso', orient='split')
-        # bool_series = documenu_df['menu_items.description'].isin(word_clusters)
-        # documenu_df = documenu_df[bool_series]
-        # print(documenu_df.head())
     
     return [word_clusters, documenu_df, zipcode_value, food_value, embedding_clusters]
 
@@ -207,44 +213,79 @@ def update_page(data):
     zcdb = ZipCodeDatabase()
     city, state = zcdb[zipcode_value].city, zcdb[zipcode_value].state, 
     title = f"Here's what people on Twitter are saying about {food_value} in {city}, {state}: "
-    text = ', '.join(word_clusters)
+    text = ', '.join(word_clusters[:10])
     print(title)
     print(text)
     
     # Update map
     mapbox_access_token = open(".mapbox_token").read()
     documenu_copy = pd.read_json(documenu_df, orient='split')
-    print(documenu_copy.shape)
+    # print(documenu_copy.shape)
+    print(documenu_copy.head())
     documenu_copy = documenu_copy.loc[documenu_copy['menu_items.description'].str.contains(food_value, case=False, na=False)]
     print(documenu_copy.shape)
     restaurants = documenu_copy.restaurant_name.unique().tolist()
+    print(restaurants)
     lat = documenu_copy['geo.lat'].unique().tolist()
     lon = documenu_copy['geo.lon'].unique().tolist()
-
-    fig = [go.Scattermapbox(
-        lat = lat,
-        lon = lon,
-        mode='markers',
-        marker={
-            'color': 'blue'
-        },
-        unselected={'marker': {'opacity': 0.5}},
-        selected={'marker': {'opacity': 0.2, 'size': 25}},
-        text=restaurants
-    )]
+    cuisines = documenu_copy.cuisine_1.unique().tolist()
+    cuisine_colors = dict(zip(cuisines, ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(len(cuisines))]))
     
-    print(lat)
-    print(lon)
+    # Could have duplicate restaurants...
+    geo_dict = {restaurants[i]: [lat[i], lon[i]] for i in range(len(lat))}
+    
+    # Create map
+    fig=go.Figure()
+    print('test')
+    for k, v in geo_dict.items():
+        print(v[0])
+        print(v[1])
+        print(k)
+        fig.add_trace(go.Scattermapbox(
+            name=k,
+            lat = [str(v[0])],
+            lon = [str(v[1])],
+            mode='markers',
+            marker={
+                'color': cuisine_colors[documenu_copy.cuisine_1.loc[documenu_copy.restaurant_name == k].values[0]]
+            },
+            unselected={'marker': {'opacity': 0.5}},
+            selected={'marker': {'opacity': 0.2, 'size': 25}},
+            text=k,
+            legendgroup=documenu_copy.cuisine_1.loc[documenu_copy.restaurant_name == k].values[0],
+            legendgrouptitle= {
+                "text": documenu_copy.cuisine_1.loc[documenu_copy.restaurant_name == k].values[0]
+            }
+            # text=f'{restaurants}, {documenu_copy.cuisine_1}'
+        ))
+    
+    # print(fig.data)
+    fig = list(fig.data)
+    
+    # fig=[go.Scattermapbox(
+    #     lat = lat,
+    #     lon = lon,
+    #     mode='markers',
+    #     marker={
+    #         'color': 'blue'
+    #     },
+    #     unselected={'marker': {'opacity': 0.5}},
+    #     selected={'marker': {'opacity': 0.2, 'size': 25}},
+    #     text=restaurants
+    #     # text=f'{restaurants}, {documenu_copy.cuisine_1}'
+    # )]
+    
+    # print(fig)
     
     map = {
         'data': fig, 
         'layout': go.Layout(
-            title='Restaurants',
+            title=f'Restaurants<br><br><sup>Restaurants shown contain {food_value} on their menu</sup>',
             uirevision='foo',
             clickmode='event+select',
             hovermode='closest',
             autosize=True,
-            showlegend=False,
+            showlegend=True,
             mapbox=dict(
                 accesstoken=mapbox_access_token,
                 style='light',
@@ -258,6 +299,8 @@ def update_page(data):
             ),
         )
     }
+    
+    print('success5')
     
     # Update tsne graph
     # tsne_graph = tsne_plot(embedding_clusters, word_clusters, [food_value])

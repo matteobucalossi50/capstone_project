@@ -25,6 +25,10 @@ from gensim.utils import simple_preprocess
 import matplotlib.pyplot as plt
 import preprocessor as p
 
+from transformers import BertModel, BertConfig
+from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import CrossEncoder
+
 
 def tf(word, blob):
     return blob.words.count(word) / len(blob.words)
@@ -81,11 +85,6 @@ def tokens_col(filtered_df):
 
 
 ## search on transformers
-from transformers import BertModel, BertConfig
-from sentence_transformers import SentenceTransformer, util
-from sentence_transformers import CrossEncoder
-
-
 def sbert_search(filtered_df, zip, query):
 
     model = SentenceTransformer('msmarco-distilbert-base-v4')

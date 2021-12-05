@@ -78,6 +78,7 @@ def w2v_model(tokens, queries):
     # functionalize (from df to output to plot)
     embedding_clusters = []
     word_clusters = []
+<<<<<<< HEAD
     for word in queries:
         embeddings = []
         words = []
@@ -86,19 +87,40 @@ def w2v_model(tokens, queries):
             embeddings.append(model.wv[similar_word])
         embedding_clusters.append(embeddings)
         word_clusters.append(words)
+=======
+    for similar_word, _ in model.wv.most_similar(queries, topn=50):
+        word_clusters.append(similar_word)
+        embedding_clusters.append(model.wv[similar_word])
+>>>>>>> 399030dd730aad7e719f65ae705ec2148b5e80b0
 
     return embedding_clusters, word_clusters
 
 
 def tsne_plot(embedding_clusters, word_clusters, queries):
     embedding_clusters = np.array(embedding_clusters)
+<<<<<<< HEAD
     n, m, k = embedding_clusters.shape
     tsne_model_en_2d = TSNE(perplexity=15, n_components=2, init='pca', n_iter=3500, random_state=32)
     embeddings_en_2d = np.array(tsne_model_en_2d.fit_transform(embedding_clusters.reshape(n * m, k))).reshape(n, m, 2)
+=======
+    tsne_model_en_2d = TSNE(perplexity=15, n_components=2, init='pca', n_iter=3500, random_state=32)
+    embeddings_en_2d = np.array(tsne_model_en_2d.fit_transform(embedding_clusters))
+
+    import plotly.graph_objects as go
+    import plotly.express as px
+
+
+    fig = px.scatter(
+        embeddings_en_2d, x=0, y=1,
+         labels={'color': 'species'}
+    )
+    fig.show()
+>>>>>>> 399030dd730aad7e719f65ae705ec2148b5e80b0
 
     def tsne_plot_similar_words(title, labels, embedding_clusters, word_clusters, a, filename=None):
         plt.figure(figsize=(16, 9))
         colors = cm.rainbow(np.linspace(0, 1, len(labels)))
+<<<<<<< HEAD
         for label, embeddings, words, color in zip(labels, embedding_clusters, word_clusters, colors):
             x = embeddings[:, 0]
             y = embeddings[:, 1]
@@ -111,6 +133,20 @@ def tsne_plot(embedding_clusters, word_clusters, queries):
         plt.grid(True)
         if filename:
             plt.savefig(filename, format='png', dpi=150, bbox_inches='tight')
+=======
+        for label, embeddings, words, color in zip(labels, embeddings_en_2d, word_clusters, colors):
+            x = embeddings[:, 0]
+            y = embeddings[:, 1]
+            plt.scatter(x, y, color=color, alpha=.7, label=label)
+            for i, word in enumerate(words):
+                plt.annotate(word, alpha=.9, xy=(x[i], y[i]), xytext=(5, 4),
+                         textcoords='offset points', ha='right', va='bottom', size=10)
+        plt.legend(loc=4)
+        plt.title('Similar words from Twitter')
+        plt.grid(True)
+        # if filename:
+        plt.savefig('similar_words', format='png', dpi=150, bbox_inches='tight')
+>>>>>>> 399030dd730aad7e719f65ae705ec2148b5e80b0
         plt.show()
 
     tsne_plot_similar_words('Similar words from Twitter', queries, embeddings_en_2d, word_clusters, 0.7, 'similar_words.png')
@@ -124,3 +160,7 @@ if __name__ == '__main__':
     embedding_clusters, word_clusters = w2v_model(tokens, query)
 
     tsne_plot(embedding_clusters, word_clusters, query)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 399030dd730aad7e719f65ae705ec2148b5e80b0

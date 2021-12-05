@@ -660,7 +660,7 @@ fig.show()
 ### if want to search for something + specific, use SBERT to retrieve closer tweets
 ### and then give out tfidf/trigrams results
 ### can still show similairties with w2v model
-### try elmo/bert-words to search and for similarity - will fail, document why fail
+###### try elmo/bert-words to search and for similarity - will fail, document why fail
 
 ### do grid search for lda
 ### do sbert on tweets and query engine
@@ -669,5 +669,5 @@ fig.show()
 ### tables/clouds for keywords
 ### ppt
 ### dash concordance
-### find like 3/4 zipcodes and queries for demo
+###### find like 3/4 zipcodes and queries for demo
 

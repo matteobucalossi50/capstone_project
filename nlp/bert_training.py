@@ -8,7 +8,6 @@ texts = df.tweet_text.values.tolist()
 
 # model bert
 from transformers import BertTokenizer, BertModel
-<<<<<<< HEAD
 import torch
 
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -19,7 +18,6 @@ word = ["chicken", 'coffee']
 inputs = tokenizer(word, return_tensors="pt")
 outputs = model(**inputs)
 word_vect = outputs.pooler_output.detach().numpy()
-=======
 from transformers import AutoModel, AutoTokenizer
 import torch
 
@@ -45,4 +43,3 @@ for tweet in texts:
 inputs = tokenizer(word, return_tensors="pt")
 outputs = model(**inputs)
 word_vect = outputs.pooler_output.detach().numpy()
->>>>>>> 399030dd730aad7e719f65ae705ec2148b5e80b0

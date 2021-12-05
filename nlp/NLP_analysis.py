@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import pandas as pd
 import re
@@ -25,6 +26,8 @@ from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import preprocessor as p
 from textblob import TextBlob
+
+#%%
 
 df_stream = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/20211026_082018_clean_streaming_custom_hashtags_data.csv')
 
@@ -65,31 +68,48 @@ def process_words(raw_texts, stop_words=stopwords):
     #               if word not in stop_words] for doc in texts_out]
     return texts_out, noun, adj, relevants
 
-
+#%%
 ## geo-location engineering
 from pyzipcode import ZipCodeDatabase
+import pandas as pd
+import numpy as np
+df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/tweepy/data/20211026_195518_clean_scraping_custom_hashtags_data.csv', index_col=0)
+
 zcdb = ZipCodeDatabase()
+filtered_df = df.dropna(subset=['location'])
+
+locations = filtered_df.location.tolist()
+# locations = [location for location in locations if ',' in location]
 
 zipcodes = []
-rows = []
-for i, r in df.iterrows():
-    place = r['location']
-    if type(place) == str:
-        place = place.split(',')[0]
-        zip = zcdb.find_zip(city=place)
-        if zip==None:
-            pass
-        else:
-            zip = zip[0].zip
-            zipcodes.append(zip)
-            rows.append(i)
+city_state_zip = []
+errors = []
+i = -1
 
-# filtered_df = df[df['location'].apply(lambda x: isinstance(x, str))]
-filtered_df = df.iloc[rows]
-filtered_df['zipcode'] = zipcodes
+for location in locations:
+    city_state_zip = []
+    i += 1
+    if i < len(filtered_df):
+        try:
+            city, state = location.split(', ')
+            zip_codes = zcdb.find_zip(city=city, state=state)
+            for zipcode in zip_codes:
+                city_state_zip.append(zipcode.zip)
+        except:
+            city_state_zip.append(np.nan)
+        print(i)
+        print(city_state_zip[0])
+        zipcodes.append(city_state_zip)
 
+#%%
 ## save df
-# filtered_df.to_csv('20211026_195518_clean_scraping_custom_hashtags_data_zipcodes.csv')
+zipcodes_series = pd.Series(zipcodes)
+filtered_df['zipcode_list'] = zipcodes_series
+filtered_df.reset_index(drop=True, inplace=True)
+filtered_df.head(20)
+
+# %%
+# filtered_df.to_csv('20211026_195518_clean_scraping_custom_hashtags_data_zipcodes_list.csv')
 
 
 #######

@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import pandas as pd
 import re
@@ -24,11 +25,10 @@ import matplotlib.cm as cm
 
 from sklearn.manifold import TSNE
 
-
+#%%
 def process_words(texts, stop_words=stopwords):
     # remove stopwords, short tokens and letter accents
-    texts = [[word for word in simple_preprocess(str(doc), deacc=True, min_len=3)
-              if word not in stop_words] for doc in texts]
+    texts = [[word for word in simple_preprocess(str(doc), deacc=True, min_len=3) if word not in stop_words] for doc in texts]
     texts_out = []
 
     noun = []
@@ -45,11 +45,10 @@ def process_words(texts, stop_words=stopwords):
         relevants.append([token.lemma_ for token in doc if token.pos_ == 'ADJ' or token.pos_ == 'PROPN' or token.pos_ =='NOUN'])
 
     # remove stopwords and short tokens again after lemmatization
-    texts_out = [[word for word in simple_preprocess(str(doc), deacc=True, min_len=3)
-                  if word not in stop_words] for doc in texts_out]
+    texts_out = [[word for word in simple_preprocess(str(doc), deacc=True, min_len=3) if word not in stop_words] for doc in texts_out]
     return texts_out, noun, adj, relevants
 
-
+#%%
 def tokenization(df):
     texts = df.tweet_text.values.tolist()
     texts = [re.sub(r'https?://\S+', '', rev) for rev in texts]
@@ -71,7 +70,7 @@ def tokenization(df):
 
     return common_tokens
 
-
+#%5
 def w2v_model(tokens, queries):
     model = gensim.models.Word2Vec(sentences=tokens)
 
@@ -95,10 +94,9 @@ def tsne_plot(embedding_clusters, word_clusters, queries):
 
 
     fig = px.scatter(
-        embeddings_en_2d, x=0, y=1,
-         labels={'color': 'species'}
+        embeddings_en_2d, x=0, y=1, labels={'color': 'species'}
     )
-    fig.show()
+    # fig.show()
 
     def tsne_plot_similar_words(title, labels, embedding_clusters, word_clusters, a, filename=None):
         plt.figure(figsize=(16, 9))
@@ -115,16 +113,17 @@ def tsne_plot(embedding_clusters, word_clusters, queries):
         plt.grid(True)
         # if filename:
         plt.savefig('similar_words', format='png', dpi=150, bbox_inches='tight')
-        plt.show()
+        # plt.show()
 
     tsne_plot_similar_words('Similar words from Twitter', queries, embeddings_en_2d, word_clusters, 0.7, 'similar_words.png')
 
 if __name__ == '__main__':
-    df = pd.read_csv('/Users/Matteo/Desktop/repo/capstone_project/tweepy/data/20211026_195518_clean_scraping_custom_hashtags_data.csv')
+    df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/tweepy/data/20211026_195518_clean_scraping_custom_hashtags_data.csv')
 
-    query = [input()]
+    # query = [input()]
 
     tokens = tokenization(df)
     embedding_clusters, word_clusters = w2v_model(tokens, query)
 
     tsne_plot(embedding_clusters, word_clusters, query)
+# %%

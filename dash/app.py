@@ -1,3 +1,4 @@
+#%%
 from logging import PlaceHolder
 import dash
 import dash_bootstrap_components as dbc
@@ -10,10 +11,10 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pickle
 from pyzipcode import ZipCodeDatabase
-from embeddings_w2v import w2v_model, tsne_plot
+from sbert_tfidf import sbert_search, tfidf_keywords, grams_plots
 from documenu import restaurants_by_zip
 import random
-
+#%%
         
 twitter_df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/nlp/20211026_195518_clean_scraping_custom_hashtags_data_zipcodes_list.csv', index_col=0)
 
@@ -117,13 +118,10 @@ content_first_row = dbc.Row([
 content_second_row = dbc.Row(
     [
         dbc.Col(
-            dcc.Graph(id='tsne', figure={}), md=4
+            dcc.Graph(id='trigrams_plot', figure={}), md=6
         ),
         dbc.Col(
-            dcc.Graph(id='graph_2'), md=4
-        ),
-        dbc.Col(
-            dcc.Graph(id='graph_3'), md=4
+            dcc.Graph(id='bigrams_plot', figure={}), md=6
         )
     ],
 )
@@ -179,41 +177,47 @@ def process_data(n_clicks, zipcode_value, food_value):
         # Narrow twitter data to the provided zipcode
         
         # Create and run model
-        # twitter_dfc = twitter_df[twitter_df['zipcode'] == zipcode_value]
         zipcode_str = str(zipcode_value)
-        twitter_dfc = twitter_df[twitter_df['zipcode_list'].str.contains(zipcode_str, case=False, na=False)]
-        print('twitter subset', len(twitter_dfc))
-        tokens = pickle.load(open('tokens_pkl.p', 'rb'))
+        # twitter_dfc = twitter_df[twitter_df['zipcode_list'].str.contains(zipcode_str, case=False, na=False)]
+        # print('twitter subset', len(twitter_dfc))
+        # tokens = pickle.load(open('tokens_pkl.p', 'rb'))
+        filt_df = sbert_search(twitter_df, zipcode_str, food_value)
+        print(filt_df.shape)
+        print(filt_df.head())
         print('success2')
-        embedding_clusters, word_clusters = w2v_model(tokens, [food_value])
+        # embedding_clusters, word_clusters = w2v_model(tokens, [food_value])
         # print(word_clusters)
         # print(embedding_clusters)
+        keywords = tfidf_keywords(filt_df)
         print('success3')
         
         # Get menu information for the zipcode
         documenu_df = restaurants_by_zip(zipcode_value, 20, True)
         documenu_df = documenu_df.to_json(date_format='iso', orient='split')
-    
-    return [word_clusters, documenu_df, zipcode_value, food_value, embedding_clusters]
+        filt_df = filt_df.to_json(date_format='iso', orient='split')  
+
+    return [keywords, documenu_df, zipcode_value, food_value, filt_df]
 
 @app.callback(
     Output('card_title_1', 'children'),
     Output('card_text_1', 'children'),
     Output('map', 'figure'),
-    # Output('tsne', 'figure'),
+    # Output('trigrams_plot', 'figure'),
+    # Output('bigrams_plot', 'figure'),
     [Input('intermediate-value', 'data')],
     prevent_initial_call=True
 )
 def update_page(data):
     print(type(data))
     
-    word_clusters, documenu_df, zipcode_value, food_value, embedding_clusters = data[0], data[1], data[2], data[3], data[4]
+    keywords, documenu_df, zipcode_value, food_value, filt_df = data[0], data[1], data[2], data[3], data[4]
     
     # Update card
     zcdb = ZipCodeDatabase()
     city, state = zcdb[zipcode_value].city, zcdb[zipcode_value].state, 
     title = f"Here's what people on Twitter are saying about {food_value} in {city}, {state}: "
-    text = ', '.join(word_clusters[:10])
+    print(keywords)
+    text = ', '.join(keywords[:10])
     print(title)
     print(text)
     
@@ -232,7 +236,7 @@ def update_page(data):
     cuisine_colors = dict(zip(cuisines, ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(len(cuisines))]))
     
     # Could have duplicate restaurants...
-    geo_dict = {restaurants[i]: [lat[i], lon[i]] for i in range(len(lat))}
+    geo_dict = {restaurants[i]: [lat[i], lon[i]] for i in range(len(restaurants[:len(lat)]))}
     
     # Create map
     fig=go.Figure()
@@ -259,23 +263,7 @@ def update_page(data):
             # text=f'{restaurants}, {documenu_copy.cuisine_1}'
         ))
     
-    # print(fig.data)
     fig = list(fig.data)
-    
-    # fig=[go.Scattermapbox(
-    #     lat = lat,
-    #     lon = lon,
-    #     mode='markers',
-    #     marker={
-    #         'color': 'blue'
-    #     },
-    #     unselected={'marker': {'opacity': 0.5}},
-    #     selected={'marker': {'opacity': 0.2, 'size': 25}},
-    #     text=restaurants
-    #     # text=f'{restaurants}, {documenu_copy.cuisine_1}'
-    # )]
-    
-    # print(fig)
     
     map = {
         'data': fig, 
@@ -301,10 +289,11 @@ def update_page(data):
     }
     
     print('success5')
+    # filt_df_copy = pd.read_json(filt_df, orient='split')
+    # trigrams_fig, bigrams_fig = grams_plots(filt_df_copy)
     
-    # Update tsne graph
-    # tsne_graph = tsne_plot(embedding_clusters, word_clusters, [food_value])
+    print('success6')
 
-    return title, text, map #, tsne_graph
+    return title, text, map #, trigrams_fig, bigrams_fig
 #%%
 app.run_server(debug=True, use_reloader=True)  # Turn off reloader if inside Jupyter

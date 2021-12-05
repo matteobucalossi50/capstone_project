@@ -83,8 +83,6 @@ import pandas as pd
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv("/Users/test/Desktop/github_mp/capstone_project/tweepy/data/20211202_172249_clean_combined_custom_hashtags_data.csv", index_col=0)
-
 def place_to_city_state(x):
     if type(x) == str:
         full_name_i = x.find("full_name='")
@@ -124,6 +122,8 @@ import spacy
 nlp = spacy.load("en_core_web_sm")
 stopwords = stopwords.words('english')
 stopwords.extend(['https', 'http', 'com', 'tbt', 'ico', 'foodie', 'food', 'please', 'love', 'home'])
+df = pd.read_csv(r"C:\Users\raide\OneDrive\Documents\GitHub\capstone_project\tweepy\data\all_data.csv", index_col=0)
+#%%
 
 def process_words(raw_texts, stop_words=stopwords):
     """Convert a document into a list of lowercase tokens, build bigrams-trigrams, implement lemmatization"""
@@ -154,15 +154,11 @@ def process_words(raw_texts, stop_words=stopwords):
     #               if word not in stop_words] for doc in texts_out]
     return texts_out, noun, adj, relevants
 
+#%%
 texts = df.tweet_text.values.tolist()
 texts = [re.sub(r'https?://\S+', '', rev) for rev in texts]
 
 out_toks, nouns, adjs, relev_tokens = process_words(texts, stopwords)
-
-import pandas as pd
-from sentence_transformers import SentenceTransformer, util
-from sentence_transformers import CrossEncoder
-df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/nlp/20211026_195518_clean_scraping_custom_hashtags_data_zipcodes_list.csv', index_col=0)
 
 model = SentenceTransformer('msmarco-distilbert-base-v4')
 cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
@@ -172,7 +168,8 @@ sbert_embeddings = model.encode(texts, convert_to_tensor=True)
 
 df['tweet_embeddings'] = sbert_embeddings.tolist()
 df['tokens'] = relev_tokens
+df[['tweet_embeddings', 'tokens']]
 
 # %%
-df.to_csv('/Users/test/Desktop/github_mp/capstone_project/tweepy/data/20211202_172249_clean_combined_custom_hashtags_data.csv')
+# df.to_csv('/Users/test/Desktop/github_mp/capstone_project/tweepy/data/20211202_172249_clean_combined_custom_hashtags_data.csv')
 # %%

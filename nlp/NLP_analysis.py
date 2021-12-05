@@ -68,7 +68,12 @@ def process_words(raw_texts, stop_words=stopwords):
     #               if word not in stop_words] for doc in texts_out]
     return texts_out, noun, adj, relevants
 
+#######
+### nlp
+texts = df.tweet_text.values.tolist()
+
 #%%
+
 ## geo-location engineering
 from pyzipcode import ZipCodeDatabase
 import pandas as pd
@@ -590,7 +595,8 @@ for hit in hits:
     rows.append(hit['corpus_id'])
     print("\t{:3f}\t{}".format(hit['cross-score'], texts[hit['corpus_id']].replace("\n", "")))
 
-
+## save df
+filtered_df.to_csv('20211026_195518_clean_scraping_custom_hashtags_data_zipcodes.csv')
 zipped_df_searched = zipped_df.iloc[rows]
 
 ## tfidf on zipcodes
@@ -670,4 +676,3 @@ fig.show()
 ### ppt
 ### dash concordance
 ###### find like 3/4 zipcodes and queries for demo
-

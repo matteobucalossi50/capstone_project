@@ -96,8 +96,8 @@ def tsne_plot(embedding_clusters, word_clusters, queries):
     fig = px.scatter(
         embeddings_en_2d, x=0, y=1, labels={'color': 'species'}
     )
-    # fig.show()
 
+    # fig.show()
     def tsne_plot_similar_words(title, labels, embedding_clusters, word_clusters, a, filename=None):
         plt.figure(figsize=(16, 9))
         colors = cm.rainbow(np.linspace(0, 1, len(labels)))
@@ -114,7 +114,6 @@ def tsne_plot(embedding_clusters, word_clusters, queries):
         # if filename:
         plt.savefig('similar_words', format='png', dpi=150, bbox_inches='tight')
         # plt.show()
-
     tsne_plot_similar_words('Similar words from Twitter', queries, embeddings_en_2d, word_clusters, 0.7, 'similar_words.png')
 
 if __name__ == '__main__':
@@ -126,4 +125,3 @@ if __name__ == '__main__':
     embedding_clusters, word_clusters = w2v_model(tokens, query)
 
     tsne_plot(embedding_clusters, word_clusters, query)
-# %%

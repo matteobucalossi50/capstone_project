@@ -202,8 +202,8 @@ def process_data(n_clicks, zipcode_value, food_value):
     Output('card_title_1', 'children'),
     Output('card_text_1', 'children'),
     Output('map', 'figure'),
-    # Output('trigrams_plot', 'figure'),
-    # Output('bigrams_plot', 'figure'),
+    Output('trigrams_plot', 'figure'),
+    Output('bigrams_plot', 'figure'),
     [Input('intermediate-value', 'data')],
     prevent_initial_call=True
 )
@@ -214,7 +214,7 @@ def update_page(data):
     
     # Update card
     zcdb = ZipCodeDatabase()
-    city, state = zcdb[zipcode_value].city, zcdb[zipcode_value].state, 
+    city, state = zcdb[zipcode_value].city, zcdb[zipcode_value].state
     title = f"Here's what people on Twitter are saying about {food_value} in {city}, {state}: "
     print(keywords)
     text = ', '.join(keywords[:10])
@@ -262,8 +262,11 @@ def update_page(data):
             }
             # text=f'{restaurants}, {documenu_copy.cuisine_1}'
         ))
-    
+        
+    print(fig)
+    # Need to update to send to Output
     fig = list(fig.data)
+    print(fig)
     
     map = {
         'data': fig, 
@@ -289,11 +292,11 @@ def update_page(data):
     }
     
     print('success5')
-    # filt_df_copy = pd.read_json(filt_df, orient='split')
-    # trigrams_fig, bigrams_fig = grams_plots(filt_df_copy)
+    filt_df_copy = pd.read_json(filt_df, orient='split')
+    trigrams_fig, bigrams_fig = grams_plots(filt_df_copy)
     
     print('success6')
 
-    return title, text, map #, trigrams_fig, bigrams_fig
+    return title, text, map, trigrams_fig, bigrams_fig
 #%%
 app.run_server(debug=True, use_reloader=True)  # Turn off reloader if inside Jupyter

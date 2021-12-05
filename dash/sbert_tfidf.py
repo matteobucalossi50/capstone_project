@@ -133,35 +133,40 @@ def count_ngrams(lines, min_length=2, max_length=4):
 #%%
 def grams_plots(df):
 
-    zipped_toks_searched = df.tokens.values.tolist()
+    from ast import literal_eval
+    df_toks = df.tokens.apply(literal_eval)
+    zipped_toks_searched = df_toks.values.tolist()
 
     trigrams = count_ngrams(zipped_toks_searched, 3, 3)
-
     bigrams = count_ngrams(zipped_toks_searched, 2, 2)
     
-    print(list(trigrams.values())[0])
+    trigrams_x = [', '.join(x) for x in list(trigrams.keys())]
+    trigrams_y = list(trigrams.values())
+    bigrams_x = [', '.join(x) for x in list(bigrams.keys())]
+    bigrams_y = list(bigrams.values())
 
     trigrams_fig = go.Figure(data=[go.Bar(
-        x=list(list(trigrams.values())[0].keys()),
-        y=list(list(trigrams.values())[0].values()),
-        text=list(list(bigrams.values())[0].values()),
+        x=trigrams_x,
+        y=trigrams_y,
+        text=trigrams_y,
         textposition='auto',
     )])
-    trigrams_fig.update_layout(title_text='Trigrams frequency')
-    # fig.show()
+    trigrams_fig.update_layout(title_text='Trigrams frequency', xaxis={'categoryorder':'total descending', 'tickangle': 30})
+    trigrams_fig.show()
 
     bigrams_fig = go.Figure(data=[go.Bar(
-        x=list(list(bigrams.values())[0].keys()),
-        y=list(list(bigrams.values())[0].values()),
-        text=list(list(bigrams.values())[0].values()),
+        x=bigrams_x,
+        y=bigrams_y,
+        text=bigrams_y,
         textposition='outside',
     )])
-    bigrams_fig.update_layout(title_text='Bigrams frequency')
+    bigrams_fig.update_layout(title_text='Bigrams frequency', xaxis={'categoryorder':'total descending', 'tickangle': 30})
+    bigrams_fig.show()
     
     return trigrams_fig, bigrams_fig
 
 df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/nlp/20211026_195518_clean_scraping_custom_hashtags_data_zipcodes_list.csv', index_col=0)
-grams_plots(df)
+trigrams, bigrams = grams_plots(df)
 
 #%%
 

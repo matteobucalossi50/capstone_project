@@ -16,7 +16,7 @@ from documenu import restaurants_by_zip
 import random
 #%%
         
-twitter_df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/nlp/20211026_195518_clean_scraping_custom_hashtags_data_zipcodes_list.csv', index_col=0)
+twitter_df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/tweepy/data/all_data.csv', index_col=0)
 
 # the style arguments for the sidebar.
 SIDEBAR_STYLE = {
@@ -118,11 +118,11 @@ content_first_row = dbc.Row([
 content_second_row = dbc.Row(
     [
         dbc.Col(
-            dcc.Graph(id='trigrams_plot', figure={}), md=6
-        ),
-        dbc.Col(
-            dcc.Graph(id='bigrams_plot', figure={}), md=6
-        )
+            dcc.Graph(id='trigrams_plot', figure={}), md=12
+        ) #,
+        # dbc.Col(
+        #     dcc.Graph(id='bigrams_plot', figure={}), md=6
+        # )
     ],
 )
 
@@ -203,7 +203,7 @@ def process_data(n_clicks, zipcode_value, food_value):
     Output('card_text_1', 'children'),
     Output('map', 'figure'),
     Output('trigrams_plot', 'figure'),
-    Output('bigrams_plot', 'figure'),
+    # Output('bigrams_plot', 'figure'),
     [Input('intermediate-value', 'data')],
     prevent_initial_call=True
 )
@@ -231,6 +231,7 @@ def update_page(data):
     restaurants = documenu_copy.restaurant_name.unique().tolist()
     print(restaurants)
     lat = documenu_copy['geo.lat'].unique().tolist()
+    print(round(len(lat)/2))
     lon = documenu_copy['geo.lon'].unique().tolist()
     cuisines = documenu_copy.cuisine_1.unique().tolist()
     cuisine_colors = dict(zip(cuisines, ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(len(cuisines))]))
@@ -293,10 +294,10 @@ def update_page(data):
     
     print('success5')
     filt_df_copy = pd.read_json(filt_df, orient='split')
-    trigrams_fig, bigrams_fig = grams_plots(filt_df_copy)
+    trigrams_fig = grams_plots(filt_df_copy)
     
     print('success6')
 
-    return title, text, map, trigrams_fig, bigrams_fig
+    return title, text, map, trigrams_fig #, bigrams_fig
 #%%
 app.run_server(debug=True, use_reloader=True)  # Turn off reloader if inside Jupyter

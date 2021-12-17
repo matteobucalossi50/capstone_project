@@ -37,7 +37,7 @@ def sbert_search(filtered_df, zip, query):
     # cross_encoder = pickle.load(open('cross_encoder_pkl.p', 'rb'))
     # pickel model and cross_encoder
 
-    zipped_df = filtered_df[filtered_df['zipcode_list'].str.contains(zip, case=False, na=False)]
+    zipped_df = filtered_df[filtered_df['zipcodes'].str.contains(zip, case=False, na=False)]
     filt_texts = zipped_df.tweet_text.values.tolist()
 
     ## embed search on zipcodes
@@ -76,18 +76,21 @@ def sbert_search(filtered_df, zip, query):
 def tfidf_keywords(df):
     # df = df.drop_duplicates(subset='tweet_id')
     print(df.head(20))
-    df.to_csv('test.csv')
+    # df.to_csv('test.csv')
     zipped_tweets_searched = df.tweet_text.values.tolist()
+    print('zipped_tweets_searched:\n', zipped_tweets_searched   )
     zipped_tweets_searched = ' '.join(zipped_tweets_searched)
     bloblist = [tb(zipped_tweets_searched)]
-    # print(bloblist)
+    print('Bloblist:\n', bloblist)
 
     words = []
 
     for i, blob in enumerate(bloblist):
             print("Top words in document {}".format(i + 1))
             scores = {word: tfidf(word, blob, bloblist) for word in blob.words}
+            print('scores:\n', scores)
             sorted_words = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+            print('Sorted words:\n', sorted_words)
             for word, score in sorted_words[:100]:
                 print("\tWord: {}, TF-IDF: {}".format(word, round(score, 5)))
                 words.append(word)
@@ -138,12 +141,14 @@ def grams_plots(df):
     zipped_toks_searched = df_toks.values.tolist()
 
     trigrams = count_ngrams(zipped_toks_searched, 3, 3)
-    bigrams = count_ngrams(zipped_toks_searched, 2, 2)
+    #bigrams = count_ngrams(zipped_toks_searched, 2, 2)
     
     trigrams_x = [', '.join(x) for x in list(trigrams.keys())]
+    print(trigrams_x)
+    trigrams_x = trigrams_x[:5]
     trigrams_y = list(trigrams.values())
-    bigrams_x = [', '.join(x) for x in list(bigrams.keys())]
-    bigrams_y = list(bigrams.values())
+    #bigrams_x = [', '.join(x) for x in list(bigrams.keys())[:5]]
+    #bigrams_y = list(bigrams.values())
 
     trigrams_fig = go.Figure(data=[go.Bar(
         x=trigrams_x,
@@ -152,21 +157,19 @@ def grams_plots(df):
         textposition='auto',
     )])
     trigrams_fig.update_layout(title_text='Trigrams frequency', xaxis={'categoryorder':'total descending', 'tickangle': 30})
-    trigrams_fig.show()
+    # trigrams_fig.show()
 
-    bigrams_fig = go.Figure(data=[go.Bar(
-        x=bigrams_x,
-        y=bigrams_y,
-        text=bigrams_y,
-        textposition='outside',
-    )])
-    bigrams_fig.update_layout(title_text='Bigrams frequency', xaxis={'categoryorder':'total descending', 'tickangle': 30})
-    bigrams_fig.show()
+    #bigrams_fig = go.Figure(data=[go.Bar(
+        #x=bigrams_x,
+        #y=bigrams_y,
+        #text=bigrams_y,
+        #textposition='auto',
+    #)])
+    #bigrams_fig.update_layout(title_text='Bigrams frequency', xaxis={'categoryorder':'total descending', 'tickangle': 30})
+    # bigrams_fig.show()
     
-    return trigrams_fig, bigrams_fig
+    return trigrams_fig #, bigrams_fig
 
-df = pd.read_csv('/Users/test/Desktop/github_mp/capstone_project/nlp/20211026_195518_clean_scraping_custom_hashtags_data_zipcodes_list.csv', index_col=0)
-trigrams, bigrams = grams_plots(df)
 
 #%%
 
